@@ -1,0 +1,35 @@
+# Temporary project files
+*/target/*
+*/bin/*
+
+.settings/
+*/.settings
+*/.settings/*
+
+.project
+*/.project
+*/.project/*
+
+.metadata/
+*/.metadata
+*/.metadata/*
+
+.classpath
+.properties
+
+*.iml
+
+# Java class files
+*.class
+
+# Brackets files
+*.brackets.json
+
+# Idea project files
+*.idea
+*/.idea/*
+*.js.dir
+# OSX files
+.DS_Store
+
+
