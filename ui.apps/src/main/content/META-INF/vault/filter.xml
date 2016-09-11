@@ -3,6 +3,7 @@
     <filter root="/apps/Mahout">
         <exclude pattern="/apps/Mahout/install" />
     </filter>
+    <filter root="/apps/Mahout/install/aemmahout-dependency-bundle_1.0.0.jar" />
     <filter root="/apps/sling" />
     <filter root="/etc/designs/Mahout"/>
 </workspaceFilter>
