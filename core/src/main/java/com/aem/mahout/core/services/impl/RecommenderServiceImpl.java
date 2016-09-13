@@ -7,6 +7,10 @@ import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
 import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
+import org.apache.mahout.cf.taste.impl.recommender.ItemAverageRecommender;
+import org.apache.mahout.cf.taste.impl.similarity.AbstractItemSimilarity;
+import org.apache.mahout.cf.taste.impl.similarity.GenericUserSimilarity;
+import org.apache.mahout.cf.taste.impl.similarity.LogLikelihoodSimilarity;
 import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
 import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
@@ -24,24 +28,25 @@ import java.util.List;
 @Service
 public class RecommenderServiceImpl implements RecommenderService {
 
-    //Logger log = LoggerFactory.getLogger(RecommenderServiceImpl.class);
+    Logger log = LoggerFactory.getLogger(RecommenderServiceImpl.class);
 
     @Override
     public void showRecommendations() {
 
         try {
             DataModel model = new FileDataModel(new File("D:\\aem\\AEMMahout\\mahout\\dataset.csv"));
-            UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
-            UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.1, similarity, model);
-            UserBasedRecommender recommender = new GenericUserBasedRecommender(model, neighborhood, similarity);
-            List<RecommendedItem> recommendations = recommender.recommend(2, 3);
+            //UserSimilarity similarity = new LogLikelihoodSimilarity(model);
+            //UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.1, similarity, model);
+            ItemAverageRecommender recommender = new ItemAverageRecommender(model);
+            List<RecommendedItem> recommendations = recommender.recommend(2, 1);
+            log.info("recommendations= "+recommendations);
             for (RecommendedItem recommendation : recommendations) {
-                //log.info("recommendation"+recommendation);
+                log.info("recommendation"+recommendation);
             }
         } catch (IOException e) {
-           //log.error("File Not Found", e);
+           log.error("File Not Found", e);
         } catch (TasteException e) {
-           // log.error("Taste Exception", e);
+            log.error("Taste Exception", e);
         }
 
     }
