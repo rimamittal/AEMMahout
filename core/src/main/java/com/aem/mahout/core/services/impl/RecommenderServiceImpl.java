@@ -14,6 +14,9 @@ import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 import org.apache.sling.api.resource.ResourceResolver;
+import org.apache.sling.commons.json.JSONArray;
+import org.apache.sling.commons.json.JSONException;
+import org.apache.sling.commons.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
@@ -25,8 +28,9 @@ public class RecommenderServiceImpl implements RecommenderService {
     Logger log = LoggerFactory.getLogger(RecommenderServiceImpl.class);
 
     @Override
-    public List<RecommendedItem> showRecommendations(ResourceResolver resourceResolver) {
+    public JSONArray showRecommendations(ResourceResolver resourceResolver) {
         List<RecommendedItem> recommendations = null;
+        JSONArray jsonArray = new JSONArray();
         try {
 
             DataModel model = JCRDataModel.createDataModel(resourceResolver);
@@ -38,12 +42,24 @@ public class RecommenderServiceImpl implements RecommenderService {
                 long userId = HashEncoder.convertToId("jason.werner@dodgit.com");
                 recommendations = recommender.recommend(userId, 3, null, false);
 
+
+
+                for (RecommendedItem recommendation : recommendations) {
+                    JSONObject jsonObject = new JSONObject();
+                    String product = JCRDataModel.getProduct(recommendation.getItemID());
+                    jsonObject.put("Product",product);
+                    jsonObject.put("Preference",recommendation.getValue());
+                    jsonArray.put(jsonObject);
+                }
+
             }
         } catch (TasteException e) {
             log.error("Taste Exception", e);
             return null;
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-        return recommendations;
+        return jsonArray;
     }
 
 
