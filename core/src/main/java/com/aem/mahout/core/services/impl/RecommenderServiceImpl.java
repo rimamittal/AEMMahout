@@ -1,27 +1,19 @@
 package com.aem.mahout.core.services.impl;
 
+import com.aem.mahout.core.models.JCRDataModel;
 import com.aem.mahout.core.services.RecommenderService;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.mahout.cf.taste.common.TasteException;
-import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
-import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
-import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
-import org.apache.mahout.cf.taste.impl.recommender.ItemAverageRecommender;
-import org.apache.mahout.cf.taste.impl.similarity.AbstractItemSimilarity;
-import org.apache.mahout.cf.taste.impl.similarity.GenericUserSimilarity;
-import org.apache.mahout.cf.taste.impl.similarity.LogLikelihoodSimilarity;
-import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
+import org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood;
+import org.apache.mahout.cf.taste.impl.recommender.*;
+import org.apache.mahout.cf.taste.impl.similarity.*;
 import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
-import org.apache.mahout.cf.taste.recommender.UserBasedRecommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 @Component
@@ -31,23 +23,48 @@ public class RecommenderServiceImpl implements RecommenderService {
     Logger log = LoggerFactory.getLogger(RecommenderServiceImpl.class);
 
     @Override
-    public void showRecommendations() {
-
+    public List<RecommendedItem> showRecommendations() {
+        List<RecommendedItem> recommendations = null;
         try {
-            DataModel model = new FileDataModel(new File("D:\\aem\\AEMMahout\\mahout\\dataset.csv"));
-            //UserSimilarity similarity = new LogLikelihoodSimilarity(model);
-            //UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.1, similarity, model);
-            ItemAverageRecommender recommender = new ItemAverageRecommender(model);
-            List<RecommendedItem> recommendations = recommender.recommend(2, 1);
-            log.info("recommendations= "+recommendations);
-            for (RecommendedItem recommendation : recommendations) {
-                log.info("recommendation"+recommendation);
+
+            DataModel model = JCRDataModel.createDataModel();
+            if (model != null) {
+                UserSimilarity userSimilarity = getSimilarity(model);
+                UserNeighborhood neighborhood = getNeighbourHood(100,userSimilarity,model);
+                GenericUserBasedRecommender recommender = new GenericUserBasedRecommender(model, neighborhood, userSimilarity);
+                recommendations = recommender.recommend(2, 3, null, false);
+
             }
-        } catch (IOException e) {
-           log.error("File Not Found", e);
+        } catch (TasteException e) {
+            log.error("Taste Exception", e);
+            return null;
+        }
+        return recommendations;
+    }
+
+
+    private UserSimilarity getSimilarity(DataModel model) {
+
+        UserSimilarity similarity = null;
+        try {
+            similarity = new PearsonCorrelationSimilarity(model);
+            similarity.setPreferenceInferrer(new AveragingPreferenceInferrer(model));
         } catch (TasteException e) {
             log.error("Taste Exception", e);
         }
+        return similarity;
 
     }
+
+    private UserNeighborhood getNeighbourHood(int n, UserSimilarity userSimilarity, DataModel dataModel){
+        UserNeighborhood userNeighborhood = null;
+
+        try {
+            userNeighborhood = new NearestNUserNeighborhood(n, userSimilarity, dataModel);
+        } catch (TasteException e) {
+            log.error("Taste Exception", e);        }
+
+        return userNeighborhood;
+    }
+
 }
