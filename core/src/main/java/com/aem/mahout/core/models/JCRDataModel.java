@@ -1,84 +1,105 @@
 package com.aem.mahout.core.models;
 
 
+import com.aem.mahout.core.utils.CRXUtil;
+import com.aem.mahout.core.utils.QueryUtil;
+import com.aem.mahout.core.utils.SortUtil;
+import com.day.cq.search.PredicateGroup;
+import com.day.cq.search.QueryBuilder;
+import com.day.cq.search.result.SearchResult;
+import org.apache.lucene.search.Sort;
 import org.apache.mahout.cf.taste.impl.common.FastByIDMap;
 import org.apache.mahout.cf.taste.impl.model.GenericDataModel;
 import org.apache.mahout.cf.taste.impl.model.GenericPreference;
 import org.apache.mahout.cf.taste.impl.model.GenericUserPreferenceArray;
 import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.model.PreferenceArray;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.jcr.Session;
+import java.util.*;
 
 public class JCRDataModel {
+
     static Logger log = LoggerFactory.getLogger(JCRDataModel.class);
 
+    public static String USERGENERATED_PATH = "/content/usergenerated/asi/jcr";
+    public static String PRODUCT_PATH = "/etc/commerce/products/geometrixx-outdoors";
+    public static String RATING_RESOURCE_TYPE = "social/tally/components/response";
 
-    public static DataModel createDataModel() {
+    private static Map<Long,String> productMap;
+    private static Map<Long,String> userMap;
+
+
+    /** The Constant queryBuilder. */
+    private static final QueryBuilder queryBuilder = CRXUtil.getServiceReference(QueryBuilder.class);
+
+
+
+    public static DataModel createDataModel(ResourceResolver resourceResolver) {
+
+        productMap = new HashMap<Long, String>();
+        userMap = new HashMap<Long, String>();
 
         FastByIDMap<PreferenceArray> dataMap = new FastByIDMap<PreferenceArray>();
 
+        final Map<String, String> predicateMap = QueryUtil.getQueryMapForProperty((USERGENERATED_PATH+PRODUCT_PATH),"sling:resourceType",RATING_RESOURCE_TYPE);
+        final SearchResult result = queryBuilder.createQuery(PredicateGroup.create(predicateMap),
+                resourceResolver.adaptTo(Session.class)).getResult();
 
-        List<GenericPreference> preferenceUser1List = new ArrayList<GenericPreference>();
-        List<GenericPreference> preferenceUser2List = new ArrayList<GenericPreference>();
-        List<GenericPreference> preferenceUser3List = new ArrayList<GenericPreference>();
-        List<GenericPreference> preferenceUser4List = new ArrayList<GenericPreference>();
+        if(result != null ){
 
-        preferenceUser1List.add(new GenericPreference(1, 10, 0.9f));
-        preferenceUser1List.add(new GenericPreference(1, 11, 5.0f));
-        preferenceUser1List.add(new GenericPreference(1, 12, 3.5f));
-        preferenceUser1List.add(new GenericPreference(1, 13, 0.6f));
-        preferenceUser1List.add(new GenericPreference(1, 14, 0.9f));
-        preferenceUser1List.add(new GenericPreference(1, 21, 5.0f));
-        preferenceUser1List.add(new GenericPreference(1, 16, 3.5f));
-        preferenceUser1List.add(new GenericPreference(1, 17, 0.6f));
-        preferenceUser1List.add(new GenericPreference(1, 18, 0.6f));
+            List<Map<String, String>> resources = QueryUtil.getResultListwithProperty(result,"userIdentifier","response");
+            Collections.sort(resources, SortUtil.mapComparator);
+            Map<String,List<Map<String,String>>> userIdPreferenceMap = SortUtil.splitList(resources);
 
-        preferenceUser2List.add(new GenericPreference(2, 10, 4.9f));
-        preferenceUser2List.add(new GenericPreference(2, 11, 0.7f));
-        preferenceUser2List.add(new GenericPreference(2, 15, 3.8f));
-        preferenceUser2List.add(new GenericPreference(2, 16, 0.3f));
-        preferenceUser2List.add(new GenericPreference(2, 17, 0.3f));
-        preferenceUser2List.add(new GenericPreference(2, 18, 0.3f));
+            for(List<Map<String,String>> userLists : userIdPreferenceMap.values()){
 
-        preferenceUser3List.add(new GenericPreference(3, 11, 0.9f));
-        preferenceUser3List.add(new GenericPreference(3, 12, 4.0f));
-        preferenceUser3List.add(new GenericPreference(3, 13, 0.5f));
-        preferenceUser3List.add(new GenericPreference(3, 21, 9.8f));
-        preferenceUser3List.add(new GenericPreference(3, 15, 9.8f));
-        preferenceUser3List.add(new GenericPreference(3, 16, 9.8f));
-        preferenceUser3List.add(new GenericPreference(3, 17, 9.8f));
+                long userIdHash = 0;
+                List<GenericPreference> preferenceUserList = new ArrayList<GenericPreference>();
+                for(Map<String,String> userPreference : userLists){
+                    userIdHash = HashEncoder.convertToId(userPreference.get("userIdentifier"));
+                    String itemPath = substring(userPreference.get("path"),"r/etc","/jcr:content");
+                    long itemIdHash = HashEncoder.convertToId(itemPath);
+                    setProduct(itemIdHash,itemPath);
+                    float preference = Float.parseFloat(userPreference.get("response"));
+                    preferenceUserList.add(new GenericPreference(userIdHash,itemIdHash,preference));
+                }
+                PreferenceArray preferenceArray = new GenericUserPreferenceArray(preferenceUserList);
+                dataMap.put(userIdHash,preferenceArray);
 
+            }
 
-        preferenceUser4List.add(new GenericPreference(4, 24, 8.9f));
-        preferenceUser4List.add(new GenericPreference(4, 25, 3.0f));
-        preferenceUser4List.add(new GenericPreference(4, 26, 7.5f));
-        preferenceUser4List.add(new GenericPreference(4, 28, 9.6f));
-        preferenceUser4List.add(new GenericPreference(4, 29, 9.6f));
-        preferenceUser4List.add(new GenericPreference(4, 21, 10.2f));
-        preferenceUser4List.add(new GenericPreference(4, 22, 9.6f));
-        preferenceUser4List.add(new GenericPreference(4, 23, 9.6f));
-        preferenceUser4List.add(new GenericPreference(4, 24, 9.6f));
-
-
-        PreferenceArray preferenceArray1 = new GenericUserPreferenceArray(preferenceUser1List);
-        PreferenceArray preferenceArray2 = new GenericUserPreferenceArray(preferenceUser2List);
-        PreferenceArray preferenceArray3 = new GenericUserPreferenceArray(preferenceUser3List);
-        PreferenceArray preferenceArray4 = new GenericUserPreferenceArray(preferenceUser4List);
-
-
-        dataMap.put(1, preferenceArray1);
-        dataMap.put(2, preferenceArray2);
-        dataMap.put(3, preferenceArray3);
-        dataMap.put(4, preferenceArray4);
+        } else {
+            log.info("no user ratings saved");
+        }
 
         log.info("datamap == " + dataMap);
 
         DataModel model = new GenericDataModel(dataMap);
         return model;
 
+    }
+
+    public static void setProduct(long productId, String product){
+        if(!productMap.containsKey(productId)){
+            productMap.put(productId,product);
+        }
+    }
+
+    public static String getProduct(Long id){
+        return productMap.get(id);
+    }
+
+
+    public static String substring(String s, String delimiter1, String delimiter2){
+        String result  = "";
+        if(s != null ){
+            result = s.substring(s.indexOf(delimiter1) + 1, s.indexOf(delimiter2));
+        }
+        return result;
     }
 }

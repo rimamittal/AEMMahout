@@ -1,5 +1,6 @@
 package com.aem.mahout.core.services.impl;
 
+import com.aem.mahout.core.models.HashEncoder;
 import com.aem.mahout.core.models.JCRDataModel;
 import com.aem.mahout.core.services.RecommenderService;
 import org.apache.felix.scr.annotations.Component;
@@ -12,6 +13,7 @@ import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
+import org.apache.sling.api.resource.ResourceResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
@@ -23,16 +25,18 @@ public class RecommenderServiceImpl implements RecommenderService {
     Logger log = LoggerFactory.getLogger(RecommenderServiceImpl.class);
 
     @Override
-    public List<RecommendedItem> showRecommendations() {
+    public List<RecommendedItem> showRecommendations(ResourceResolver resourceResolver) {
         List<RecommendedItem> recommendations = null;
         try {
 
-            DataModel model = JCRDataModel.createDataModel();
+            DataModel model = JCRDataModel.createDataModel(resourceResolver);
             if (model != null) {
                 UserSimilarity userSimilarity = getSimilarity(model);
                 UserNeighborhood neighborhood = getNeighbourHood(100,userSimilarity,model);
                 GenericUserBasedRecommender recommender = new GenericUserBasedRecommender(model, neighborhood, userSimilarity);
-                recommendations = recommender.recommend(2, 3, null, false);
+
+                long userId = HashEncoder.convertToId("jason.werner@dodgit.com");
+                recommendations = recommender.recommend(userId, 3, null, false);
 
             }
         } catch (TasteException e) {
