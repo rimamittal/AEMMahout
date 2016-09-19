@@ -1,5 +1,6 @@
 package com.aem.mahout.core.services.impl;
 
+import com.adobe.cq.commerce.api.Product;
 import com.aem.mahout.core.models.HashEncoder;
 import com.aem.mahout.core.models.JCRDataModel;
 import com.aem.mahout.core.services.RecommenderService;
@@ -28,30 +29,38 @@ public class RecommenderServiceImpl implements RecommenderService {
     Logger log = LoggerFactory.getLogger(RecommenderServiceImpl.class);
 
     @Override
-    public JSONArray showRecommendations(ResourceResolver resourceResolver) {
+    public JSONArray showRecommendations(final ResourceResolver resourceResolver, final String userId, final int numberOfRecommedations) {
         List<RecommendedItem> recommendations = null;
         JSONArray jsonArray = new JSONArray();
         try {
-
+            //Creating JCRDataModel to fetch information from JCR
             DataModel model = JCRDataModel.createDataModel(resourceResolver);
-            if (model != null) {
+            if (!"".equals(userId) && model != null) {
+                //Getting user similarity object to get the similarity between any USER with similar taste as of current user based on PearsonCorrelation formula
                 UserSimilarity userSimilarity = getSimilarity(model);
+                //Find the 100 or n nearest users based on the user similarity from user data set (User DataModel)
                 UserNeighborhood neighborhood = getNeighbourHood(100,userSimilarity,model);
+                //Initialising the UserBased recommender to get recommendations based on other users reviews
                 GenericUserBasedRecommender recommender = new GenericUserBasedRecommender(model, neighborhood, userSimilarity);
+                //Calculating the Hash code of the given user to get the recommendations
+                long userIdHash = HashEncoder.convertToId(userId);
+                //Getting the N number of recommendations for the given user
+                recommendations = recommender.recommend(userIdHash, numberOfRecommedations, null, false);
 
-                long userId = HashEncoder.convertToId("jason.werner@dodgit.com");
-                recommendations = recommender.recommend(userId, 3, null, false);
-
-
-
+                //Creating a JSON array of recommendations
                 for (RecommendedItem recommendation : recommendations) {
                     JSONObject jsonObject = new JSONObject();
-                    String product = JCRDataModel.getProduct(recommendation.getItemID());
-                    jsonObject.put("Product",product);
+                    Product product = JCRDataModel.getProduct(recommendation.getItemID());
+                    jsonObject.put("product_sku",product.getSKU());
+                    jsonObject.put("product_path",product.getPath());
+                    jsonObject.put("product_title",product.getTitle());
+                    jsonObject.put("product_description",product.getDescription());
+                    jsonObject.put("product_thumbnailSrc",product.getThumbnail().getSrc());
+                    jsonObject.put("product_pagePath",product.getPagePath());
+                    jsonObject.put("product_ImageSrc",product.getImage().getSrc());
                     jsonObject.put("Preference",recommendation.getValue());
                     jsonArray.put(jsonObject);
                 }
-
             }
         } catch (TasteException e) {
             log.error("Taste Exception", e);

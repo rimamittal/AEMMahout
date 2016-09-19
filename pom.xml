@@ -226,7 +226,7 @@
                 <plugin>
                     <groupId>com.day.jcr.vault</groupId>
                     <artifactId>content-package-maven-plugin</artifactId>
-                    <version>0.0.24</version>
+                    <version>0.0.23</version>
                     <configuration>
                         <targetURL>http://${aem.host}:${aem.port}/crx/packmgr/service.jsp</targetURL>
                         <failOnError>true</failOnError>
@@ -497,6 +497,19 @@
                 <artifactId>junit-addons</artifactId>
                 <version>1.4</version>
                 <scope>test</scope>
+            </dependency>
+            <!-- Commerce Dependencies -->
+            <dependency>
+                <groupId>com.adobe.cq.commerce</groupId>
+                <artifactId>cq-commerce-core</artifactId>
+                <version>5.14.102</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.day.cq</groupId>
+                <artifactId>cq-commons</artifactId>
+                <version>5.9.22</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

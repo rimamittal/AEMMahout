@@ -1,16 +1,22 @@
-# Sample AEM project template
+# AEM Mahout integration
 
-This is a project template for AEM-based applications. It is intended as a best-practice set of examples as well as a potential starting point to develop your own functionality.
+This is a project is a demo project to showcase the integration of Adobe experience manager(AEM) with Apache Mahout.
+Apache Mahout is an algorithm library for scalable machine learning. Machine learning is getting in trend and so we 
+thought about Integrating Apache Mahout with AEM to simply make our AEM applications smarter and interesting! 
+In this project we have created a User based recommnedation engine which reads user preferences/reviews stored in AEM under
+JCR. And based on the data set it provides recommendations to its users.
 
 ## Modules
 
 The main parts of the template are:
 
-* core: Java bundle containing all core functionality like OSGi services, listeners or schedulers, as well as component-related Java code such as servlets or request filters.
-* ui.apps: contains the /apps (and /etc) parts of the project, ie JS&CSS clientlibs, components, templates, runmode specific configs as well as Hobbes-tests
+* core: Java bundle containing all core functionality like OSGi AEM-Mahout recommender services,
+        AEM-Mahout GetRecommendations Servlet and other utility classes.
+* ui.apps: contains the /apps (and /etc) parts of the project, ie JS&CSS clientlibs, components, templates, runmode. 
+This module includes the Mahout-dependency bundle which is used by core bundle to generate recommendations 
 * ui.content: contains sample content using the components from the ui.apps
 * ui.tests: Java bundle containing JUnit tests that are executed server-side. This bundle is not to be deployed onto production.
-* ui.launcher: contains glue code that deploys the ui.tests bundle (and dependent bundles) to the server and triggers the remote JUnit execution
+* ui.launcher: contains glue code that deploys the ui.tests bundle to the server
 
 ## How to build
 
@@ -30,25 +36,29 @@ Or to deploy only the bundle to the author, run
 
     mvn clean install -PautoInstallBundle
 
-## Testing
+Or to deploy only the content, run
 
-There are three levels of testing contained in the project:
-
-* unit test in core: this show-cases classic unit testing of the code contained in the bundle. To test, execute:
-
-    mvn clean test
-
-* server-side integration tests: this allows to run unit-like tests in the AEM-environment, ie on the AEM server. To test, execute:
-
-    mvn clean integration-test -PintegrationTests
-
-* client-side Hobbes.js tests: JavaScript-based browser-side tests that verify browser-side behavior. To test:
-
-    in the browser, open the page in 'Developer mode', open the left panel and switch to the 'Tests' tab and find the generated 'MyName Tests' and run them.
+    mvn clean install -PautoInstallContent
 
 
-## Maven settings
+# Authors
 
-The project comes with the auto-public repository configured. To setup the repository in your Maven settings, refer to:
+### **_Rima Mittal_**
 
-    http://helpx.adobe.com/experience-manager/kb/SetUpTheAdobeMavenRepository.html
+Contact Info :
+
+* [LinkedIn](https://in.linkedin.com/pub/rima-mittal/13/92/501 "Rima Mittal")
+* [Twitter](https://twitter.com/rimamittal)
+* [Slideshare](http://www.slideshare.net/puneeshm/)
+* [Blog](http://rimamittal.blogspot.in/)
+
+
+[### **_Ankit gubrani_**](https://github.com/ankit-gubrani/)
+
+Contact Info :
+
+* [LinkedIn](https://in.linkedin.com/pub/ankit-gubrani/74/a75/56b "Ankit Gubrani")
+* [Twitter](https://twitter.com/ankitgubrani90)
+* [Blog](http://codebrains.blogspot.in/)
+* [Slideshare](http://www.slideshare.net/ankitgubrani/)
+* [Website](http://www.codebrains.co.in/)

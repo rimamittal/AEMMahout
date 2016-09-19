@@ -136,7 +136,7 @@
     <!-- ====================================================================== -->
     <profiles>
         <profile>
-            <id>autoInstallPackage</id>
+            <id>autoInstallContent</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>

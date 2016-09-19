@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface RecommenderService {
 
-    public JSONArray showRecommendations(ResourceResolver resourceResolver);
+    public JSONArray showRecommendations(ResourceResolver resourceResolver, String userId, int numberOfRecommedations);
 }

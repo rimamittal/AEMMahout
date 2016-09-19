@@ -78,6 +78,7 @@
         </profile>
     </profiles>
     <dependencies>
+
         <!-- OSGi Dependencies -->
         <dependency>
             <groupId>org.apache.felix</groupId>
@@ -100,6 +101,14 @@
             <artifactId>org.osgi.compendium</artifactId>
         </dependency>
         <!-- Other Dependencies -->
+        <dependency>
+            <groupId>com.adobe.cq.commerce</groupId>
+            <artifactId>cq-commerce-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.day.cq</groupId>
+            <artifactId>cq-commons</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>

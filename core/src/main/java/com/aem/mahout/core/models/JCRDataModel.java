@@ -1,6 +1,7 @@
 package com.aem.mahout.core.models;
 
 
+import com.adobe.cq.commerce.api.Product;
 import com.aem.mahout.core.utils.CRXUtil;
 import com.aem.mahout.core.utils.QueryUtil;
 import com.aem.mahout.core.utils.SortUtil;
@@ -30,7 +31,7 @@ public class JCRDataModel {
     public static String PRODUCT_PATH = "/etc/commerce/products/geometrixx-outdoors";
     public static String RATING_RESOURCE_TYPE = "social/tally/components/response";
 
-    private static Map<Long,String> productMap;
+    private static Map<Long,Product> productMap;
     private static Map<Long,String> userMap;
 
 
@@ -41,7 +42,7 @@ public class JCRDataModel {
 
     public static DataModel createDataModel(ResourceResolver resourceResolver) {
 
-        productMap = new HashMap<Long, String>();
+        productMap = new HashMap<Long, Product>();
         userMap = new HashMap<Long, String>();
 
         FastByIDMap<PreferenceArray> dataMap = new FastByIDMap<PreferenceArray>();
@@ -63,10 +64,16 @@ public class JCRDataModel {
                 for(Map<String,String> userPreference : userLists){
                     userIdHash = HashEncoder.convertToId(userPreference.get("userIdentifier"));
                     String itemPath = substring(userPreference.get("path"),"r/etc","/jcr:content");
-                    long itemIdHash = HashEncoder.convertToId(itemPath);
-                    setProduct(itemIdHash,itemPath);
-                    float preference = Float.parseFloat(userPreference.get("response"));
-                    preferenceUserList.add(new GenericPreference(userIdHash,itemIdHash,preference));
+                    //
+                    Resource productResource = resourceResolver.getResource(itemPath);
+                    Product product = (productResource != null) ? productResource.adaptTo(Product.class) : null;
+                    //If product exists in JCR, then add it to preference list
+                    if (product != null) {
+                        long itemIdHash = HashEncoder.convertToId(itemPath);
+                        setProduct(itemIdHash,product);
+                        float preference = Float.parseFloat(userPreference.get("response"));
+                        preferenceUserList.add(new GenericPreference(userIdHash,itemIdHash,preference));
+                    }
                 }
                 PreferenceArray preferenceArray = new GenericUserPreferenceArray(preferenceUserList);
                 dataMap.put(userIdHash,preferenceArray);
@@ -84,13 +91,13 @@ public class JCRDataModel {
 
     }
 
-    public static void setProduct(long productId, String product){
+    public static void setProduct(long productId, Product product){
         if(!productMap.containsKey(productId)){
             productMap.put(productId,product);
         }
     }
 
-    public static String getProduct(Long id){
+    public static Product getProduct(Long id){
         return productMap.get(id);
     }
 
