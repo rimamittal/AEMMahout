@@ -41,6 +41,12 @@ Or to deploy only the content, run
     mvn clean install -PautoInstallContent
 
 
+## How to check the results : 
+
+1. Deploy the codebase on AEM 6.1+ 
+2. Hit the URL : localhost:4502/bin/recommend/mahout.json?userId=jason.werner@dodgit.com&recommendationsCount=3
+3. Use the recommendations
+
 # Authors
 
 ### **_Rima Mittal_**
@@ -53,7 +59,7 @@ Contact Info :
 * [Blog](http://rimamittal.blogspot.in/)
 
 
-[### **_Ankit gubrani_**](https://github.com/ankit-gubrani/)
+### [**_Ankit gubrani_**](https://github.com/ankit-gubrani/)
 
 Contact Info :
 

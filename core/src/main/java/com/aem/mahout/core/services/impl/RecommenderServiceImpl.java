@@ -22,14 +22,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
 
-@Component
-@Service
+@Service(RecommenderService.class)
+@Component(label = "Recommender Service", description = "Recommender Service used for generating the recommendations based on user reviews")
 public class RecommenderServiceImpl implements RecommenderService {
 
     Logger log = LoggerFactory.getLogger(RecommenderServiceImpl.class);
 
+    private static final int N_NEIGHOBUR_HOOD = 100;
+
     @Override
-    public JSONArray showRecommendations(final ResourceResolver resourceResolver, final String userId, final int numberOfRecommedations) {
+    public JSONArray getUserBasedRecommendations(final ResourceResolver resourceResolver, final String userId, final int numberOfRecommedations) {
         List<RecommendedItem> recommendations = null;
         JSONArray jsonArray = new JSONArray();
         try {
@@ -39,7 +41,7 @@ public class RecommenderServiceImpl implements RecommenderService {
                 //Getting user similarity object to get the similarity between any USER with similar taste as of current user based on PearsonCorrelation formula
                 UserSimilarity userSimilarity = getSimilarity(model);
                 //Find the 100 or n nearest users based on the user similarity from user data set (User DataModel)
-                UserNeighborhood neighborhood = getNeighbourHood(100,userSimilarity,model);
+                UserNeighborhood neighborhood = getNeighbourHood(N_NEIGHOBUR_HOOD, userSimilarity, model);
                 //Initialising the UserBased recommender to get recommendations based on other users reviews
                 GenericUserBasedRecommender recommender = new GenericUserBasedRecommender(model, neighborhood, userSimilarity);
                 //Calculating the Hash code of the given user to get the recommendations
@@ -69,6 +71,15 @@ public class RecommenderServiceImpl implements RecommenderService {
             e.printStackTrace();
         }
         return jsonArray;
+    }
+
+    @Override
+    public JSONArray getItemBasedRecommendations(ResourceResolver resourceResolver, String productId, int numberOfRecommedations) {
+        /**
+         *  Implement this method to generate item based recommendations. GenericItemBasedRecommender can be used
+         */
+
+        return null;
     }
 
 

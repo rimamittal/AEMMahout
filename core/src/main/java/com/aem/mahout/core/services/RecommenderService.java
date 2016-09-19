@@ -9,5 +9,24 @@ import java.util.List;
 
 public interface RecommenderService {
 
-    public JSONArray showRecommendations(ResourceResolver resourceResolver, String userId, int numberOfRecommedations);
+    /**
+     * Get JSON array of user based recommendations
+     * @param resourceResolver
+     * @param userId
+     * @param numberOfRecommedations
+     *
+     * @return JSONArray
+     */
+    public JSONArray getUserBasedRecommendations(ResourceResolver resourceResolver, String userId, int numberOfRecommedations);
+
+    /**
+     * Get JSON Array of Item based recommendations
+     *
+     * @param resourceResolver
+     * @param productId
+     * @param numberOfRecommedations
+     *
+     * @return JSONArray
+     */
+    public JSONArray getItemBasedRecommendations(ResourceResolver resourceResolver, String productId, int numberOfRecommedations);
 }
