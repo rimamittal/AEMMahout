@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
+          xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+          jcr:primaryType="cq:Dialog"
+          title="AEMMahout Recommendation Component"
+          xtype="tabpanel">
+    <items jcr:primaryType="cq:WidgetCollection">
+        <recommendations
+                jcr:primaryType="cq:Widget"
+                title="Recommendations config"
+                xtype="panel">
+            <items jcr:primaryType="cq:WidgetCollection">
+                <requiredRule
+                        jcr:primaryType="nt:unstructured"
+                        fieldLabel="Number of recommendations"
+                        fieldDescription="Enter the number of recommendations this component should display."
+                        name="./recommendationsNumber"
+                        xtype="numberfield"/>
+            </items>
+        </recommendations>
+    </items>
+</jcr:root>

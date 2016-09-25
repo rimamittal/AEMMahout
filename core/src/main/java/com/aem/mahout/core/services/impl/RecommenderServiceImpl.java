@@ -1,9 +1,11 @@
 package com.aem.mahout.core.services.impl;
 
+import com.adobe.cq.commerce.api.CommerceException;
 import com.adobe.cq.commerce.api.Product;
 import com.aem.mahout.core.models.HashEncoder;
 import com.aem.mahout.core.models.JCRDataModel;
 import com.aem.mahout.core.services.RecommenderService;
+import com.aem.mahout.core.utils.QueryUtil;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.mahout.cf.taste.common.TasteException;
@@ -57,9 +59,10 @@ public class RecommenderServiceImpl implements RecommenderService {
                     jsonObject.put("product_path",product.getPath());
                     jsonObject.put("product_title",product.getTitle());
                     jsonObject.put("product_description",product.getDescription());
-                    jsonObject.put("product_thumbnailSrc",product.getThumbnail().getSrc());
-                    jsonObject.put("product_pagePath",product.getPagePath());
+                    jsonObject.put("product_thumbnailSrc", product.getThumbnail().getSrc());
+                    jsonObject.put("product_pagePath", product.getPagePath());
                     jsonObject.put("product_ImageSrc",product.getImage().getSrc());
+                    jsonObject.put("product_Price",product.getProperty("price", Float.class).toString());
                     jsonObject.put("Preference",recommendation.getValue());
                     jsonArray.put(jsonObject);
                 }
@@ -68,7 +71,7 @@ public class RecommenderServiceImpl implements RecommenderService {
             log.error("Taste Exception", e);
             return null;
         } catch (JSONException e) {
-            e.printStackTrace();
+            log.error("JSONException occurred while creating the json object : {}", e);
         }
         return jsonArray;
     }

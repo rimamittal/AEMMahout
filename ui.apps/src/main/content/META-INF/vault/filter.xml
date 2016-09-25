@@ -5,4 +5,5 @@
     </filter>
     <filter root="/apps/Mahout/install/aemmahout-dependency-bundle_1.0.0.jar" />
     <filter root="/etc/designs/Mahout"/>
+    <filter root="/etc/clientlibs/aemmahout"/>
 </workspaceFilter>
